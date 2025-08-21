@@ -136,7 +136,7 @@ const CustomerLogin = () => {
           navigate('/super-admin');
         } else {
           navigate('/dashboard');
-        }
+        })
       } else {
         setErrors({ password: 'Invalid email or password' });
       }

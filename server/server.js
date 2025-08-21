@@ -46,7 +46,21 @@ app.use(cors({
 }));
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ 
+    limit: '10mb',
+    verify: (req, res, buf, encoding) => {
+        try {
+            JSON.parse(buf);
+        } catch (e) {
+            console.error('Invalid JSON received:', buf.toString());
+            res.status(400).json({
+                success: false,
+                message: 'Invalid JSON format in request body'
+            });
+            return;
+        }
+    }
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files for uploaded photos
@@ -108,6 +122,21 @@ app.use('*', (req, res) => {
 
 // Global error handler
 app.use((error, req, res, next) => {
+    // Handle JSON parsing errors specifically
+    if (error.type === 'entity.parse.failed') {
+        console.error('JSON Parse Error:', {
+            message: error.message,
+            body: error.body,
+            url: req.url,
+            method: req.method
+        });
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid JSON format in request body. Please ensure you are sending valid JSON.',
+            error: 'JSON_PARSE_ERROR'
+        });
+    }
+    
     console.error('Global error handler:', error);
     
     res.status(error.status || 500).json({
