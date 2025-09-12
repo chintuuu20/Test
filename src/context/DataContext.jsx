@@ -25,10 +25,14 @@ export const DataProvider = ({ children }) => {
   useEffect(() => {
     const loadStoredData = () => {
       try {
-        const storedRestaurants = localStorage.getItem('restaurants');
-        const storedOrders = localStorage.getItem('orders');
-        const storedBookings = localStorage.getItem('bookings');
-        const storedCart = localStorage.getItem('cart');
+        // Only load cached data if user is authenticated and role matches
+        const currentRole = localStorage.getItem('auth_role');
+        if (!currentRole) return;
+        
+        const storedRestaurants = localStorage.getItem(`restaurants_${currentRole}`);
+        const storedOrders = localStorage.getItem(`orders_${currentRole}`);
+        const storedBookings = localStorage.getItem(`bookings_${currentRole}`);
+        const storedCart = localStorage.getItem(`cart_${currentRole}`);
         
         if (storedRestaurants) {
           setRestaurants(JSON.parse(storedRestaurants));
@@ -54,26 +58,33 @@ export const DataProvider = ({ children }) => {
 
   // Save data to localStorage whenever it changes
   useEffect(() => {
+    const currentRole = localStorage.getItem('auth_role');
+    if (!currentRole) return;
+    
     if (restaurants.length > 0) {
-      localStorage.setItem('restaurants', JSON.stringify(restaurants));
+      localStorage.setItem(`restaurants_${currentRole}`, JSON.stringify(restaurants));
     }
   }, [restaurants]);
 
   useEffect(() => {
+    const currentRole = localStorage.getItem('auth_role');
+    if (!currentRole) return;
+    
     if (orders.length > 0) {
-      localStorage.setItem('orders', JSON.stringify(orders));
+      localStorage.setItem(`orders_${currentRole}`, JSON.stringify(orders));
     }
   }, [orders]);
 
   useEffect(() => {
+    const currentRole = localStorage.getItem('auth_role');
+    if (!currentRole) return;
+    
     if (bookings.length > 0) {
-      localStorage.setItem('bookings', JSON.stringify(bookings));
+      localStorage.setItem(`bookings_${currentRole}`, JSON.stringify(bookings));
     }
   }, [bookings]);
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
   // Load restaurants from API
   const loadRestaurants = async () => {
     setIsLoading(true);
@@ -143,17 +154,8 @@ export const DataProvider = ({ children }) => {
   React.useEffect(() => {
     if (authChecked) {
       loadRestaurants();
-      
-      // Set up periodic refresh only if authenticated
-      let interval;
-      if (isAuthenticated && token) {
-        interval = setInterval(() => {
-          loadRestaurants();
-        }, 30000); // Refresh every 30 seconds
-      }
-      return () => clearInterval(interval);
     }
-  }, [authChecked, isAuthenticated, token]);
+  }, [authChecked, isAuthenticated, token, role]); // Add role dependency
   
   // Force reload restaurants data
   const forceLoadRestaurants = async () => {

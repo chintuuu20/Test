@@ -56,12 +56,6 @@ const AdminMenu = () => {
   useEffect(() => {
     loadMenuItems();
     loadTables();
-    // Set up periodic refresh
-    const interval = setInterval(() => {
-      loadMenuItems();
-      loadTables();
-    }, 30000); // Refresh every 30 seconds
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -69,7 +63,6 @@ const AdminMenu = () => {
   }, [menuItems, searchTerm, categoryFilter]);
 
   const loadMenuItems = async () => {
-    setIsLoading(true);
     try {
       const response = await apiCall('/admin/menu');
       if (response.success) {
@@ -78,16 +71,12 @@ const AdminMenu = () => {
       }
     } catch (error) {
       console.error('Failed to load menu items:', error);
-      addNotification('Failed to load menu items', 'error');
       // Set empty array for demo
       setMenuItems([]);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const loadTables = async () => {
-    setIsLoading(true);
     try {
       const response = await apiCall('/admin/tables');
       if (response.success) {
@@ -98,10 +87,7 @@ const AdminMenu = () => {
       }
     } catch (error) {
       console.error('Failed to load tables:', error);
-      addNotification('Failed to load tables', 'error');
       setTables([]);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -133,9 +119,8 @@ const AdminMenu = () => {
           x_position: 0,
           y_position: 0
         });
-        // Reload both tables and restaurants data
-        await loadTables();
-        await loadRestaurants();
+        // Reload both tables and restaurants data immediately
+        await Promise.all([loadTables(), loadRestaurants()]);
       }
     } catch (error) {
       addNotification(error.message || 'Failed to add table', 'error');
@@ -169,7 +154,8 @@ const AdminMenu = () => {
       if (result.success) {
         addNotification(`${files.length} image(s) uploaded successfully`, 'success');
         setShowImageModal(false);
-        await loadTables();
+        // Immediately reload tables
+        loadTables();
       } else {
         addNotification(result.message || 'Failed to upload images', 'error');
       }
@@ -190,8 +176,8 @@ const AdminMenu = () => {
 
       if (response.success) {
         addNotification('Table deleted successfully', 'success');
-        await loadTables();
-        await loadRestaurants();
+        // Reload both tables and restaurants data immediately
+        await Promise.all([loadTables(), loadRestaurants()]);
       }
     } catch (error) {
       addNotification(error.message || 'Failed to delete table', 'error');
@@ -208,7 +194,8 @@ const AdminMenu = () => {
 
       if (response.success) {
         addNotification('Image deleted successfully', 'success');
-        await loadTables();
+        // Immediately reload tables
+        loadTables();
       }
     } catch (error) {
       addNotification('Failed to delete image', 'error');
@@ -260,7 +247,8 @@ const AdminMenu = () => {
           dietary: '',
           chef_special: false
         });
-        await loadMenuItems();
+        // Immediately reload menu items
+        loadMenuItems();
       }
     } catch (error) {
       addNotification(error.message || 'Failed to add menu item', 'error');
@@ -277,7 +265,8 @@ const AdminMenu = () => {
       if (response.success) {
         addNotification('Menu item updated successfully', 'success');
         setEditingItem(null);
-        await loadMenuItems();
+        // Immediately reload menu items
+        loadMenuItems();
       }
     } catch (error) {
       addNotification(error.message || 'Failed to update menu item', 'error');
@@ -294,7 +283,8 @@ const AdminMenu = () => {
 
       if (response.success) {
         addNotification('Menu item deleted successfully', 'success');
-        await loadMenuItems();
+        // Immediately reload menu items
+        loadMenuItems();
       }
     } catch (error) {
       addNotification(error.message || 'Failed to delete menu item', 'error');

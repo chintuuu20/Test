@@ -25,9 +25,9 @@ export const AuthProvider = ({ children }) => {
     // Check for stored authentication on app load
     const checkStoredAuth = () => {
       try {
-        const storedUser = localStorage.getItem('user');
-        const storedRole = localStorage.getItem('role');
-        const storedToken = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('auth_user');
+        const storedRole = localStorage.getItem('auth_role');
+        const storedToken = localStorage.getItem('auth_token');
         
         if (storedUser && storedRole && storedToken) {
           const parsedUser = JSON.parse(storedUser);
@@ -47,24 +47,24 @@ export const AuthProvider = ({ children }) => {
             } else {
               // Token expired, clear storage
               console.log('⚠️ Token expired, clearing stored auth');
-              localStorage.removeItem('user');
-              localStorage.removeItem('role');
-              localStorage.removeItem('token');
+              localStorage.removeItem('auth_user');
+              localStorage.removeItem('auth_role');
+              localStorage.removeItem('auth_token');
             }
           } catch (tokenError) {
             console.error('Error parsing token:', tokenError);
             // Clear corrupted token data
-            localStorage.removeItem('user');
-            localStorage.removeItem('role');
-            localStorage.removeItem('token');
+            localStorage.removeItem('auth_user');
+            localStorage.removeItem('auth_role');
+            localStorage.removeItem('auth_token');
           }
         }
       } catch (error) {
         console.error('Error parsing stored user data:', error);
         // Clear corrupted data
-        localStorage.removeItem('user');
-        localStorage.removeItem('role');
-        localStorage.removeItem('token');
+        localStorage.removeItem('auth_user');
+        localStorage.removeItem('auth_role');
+        localStorage.removeItem('auth_token');
       } finally {
         setAuthChecked(true);
       }
@@ -75,13 +75,19 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData, userRole, authToken) => {
     console.log('🔐 Logging in user:', userData.name, 'Role:', userRole);
+    
+    // Clear any existing auth data first to prevent conflicts
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_role');
+    localStorage.removeItem('auth_token');
+    
     setUser(userData);
     setRole(userRole);
     setToken(authToken);
     setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('role', userRole);
-    localStorage.setItem('token', authToken);
+    localStorage.setItem('auth_user', JSON.stringify(userData));
+    localStorage.setItem('auth_role', userRole);
+    localStorage.setItem('auth_token', authToken);
   };
 
   const logout = () => {
@@ -90,9 +96,15 @@ export const AuthProvider = ({ children }) => {
     setRole(null);
     setToken(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('user');
-    localStorage.removeItem('role');
-    localStorage.removeItem('token');
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_role');
+    localStorage.removeItem('auth_token');
+    
+    // Also clear any cached data to prevent conflicts
+    localStorage.removeItem('restaurants');
+    localStorage.removeItem('orders');
+    localStorage.removeItem('bookings');
+    localStorage.removeItem('cart');
   };
 
   // API helper function
