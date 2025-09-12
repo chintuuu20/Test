@@ -85,6 +85,8 @@ export const DataProvider = ({ children }) => {
   }, [bookings]);
 
   useEffect(() => {
+  }
+  )
   // Load restaurants from API
   const loadRestaurants = async () => {
     setIsLoading(true);
