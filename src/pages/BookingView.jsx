@@ -180,6 +180,15 @@ function App() {
         
       // Refresh tables to update status
       await loadTables();
+      
+      // Also refresh restaurants data in global context
+      // This ensures the customer dashboard shows updated table availability
+      if (window.location.pathname.includes('/booking')) {
+        // Force refresh of restaurants data
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
     }
   };
 

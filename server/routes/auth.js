@@ -523,7 +523,8 @@ router.post('/login', loginValidation, handleValidationErrors, async (req, res) 
                                 role: 'admin',
                                 restaurantId: restaurant.id,
                                 restaurantName: restaurant.name,
-                                adminId: identifier
+                                adminId: identifier,
+                                restaurant_id: restaurant.id
                             }
                         }
                     });

@@ -180,6 +180,10 @@ export const DataProvider = ({ children }) => {
 
   const clearCart = () => {
     setCart([]);
+    const currentRole = localStorage.getItem('auth_role');
+    if (currentRole) {
+      localStorage.removeItem(`cart_${currentRole}`);
+    }
   };
 
   const addBooking = (booking) => {

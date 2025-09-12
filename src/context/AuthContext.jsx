@@ -135,6 +135,7 @@ export const AuthProvider = ({ children }) => {
         if (response.status === 401 && data.message && data.message.includes('token')) {
           console.log('🔒 Token expired or invalid, logging out');
           logout();
+          return;
         }
         throw new Error(data.message || `API request failed: ${response.status}`);
       }

@@ -144,7 +144,7 @@ const AdminMenu = () => {
       const response = await fetch(`http://localhost:5000/api/admin/tables/${selectedTable.id}/images`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         },
         body: formData
       });
